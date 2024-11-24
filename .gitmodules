@@ -1,0 +1,92 @@
+[submodule "keyple-plugin-android-nfc-java-lib"]
+	path = keyple-plugin-android-nfc-java-lib
+	url = https://github.com/eclipse-keyple/keyple-plugin-android-nfc-java-lib.git
+	branch = gh-pages
+[submodule "keyple-plugin-android-omapi-java-lib"]
+	path = keyple-plugin-android-omapi-java-lib
+	url = https://github.com/eclipse-keyple/keyple-plugin-android-omapi-java-lib.git
+	branch = gh-pages
+[submodule "keyple-common-java-api"]
+	path = keyple-common-java-api
+	url = https://github.com/eclipse-keyple/keyple-common-java-api.git
+	branch = gh-pages
+[submodule "keyple-plugin-java-api"]
+	path = keyple-plugin-java-api
+	url = https://github.com/eclipse-keyple/keyple-plugin-java-api.git
+	branch = gh-pages
+[submodule "keyple-distributed-remote-java-api"]
+	path = keyple-distributed-remote-java-api
+	url = https://github.com/eclipse-keyple/keyple-distributed-remote-java-api.git
+	branch = gh-pages
+[submodule "keyple-distributed-local-java-api"]
+	path = keyple-distributed-local-java-api
+	url = https://github.com/eclipse-keyple/keyple-distributed-local-java-api.git
+	branch = gh-pages
+[submodule "keyple-service-java-lib"]
+	path = keyple-service-java-lib
+	url = https://github.com/eclipse-keyple/keyple-service-java-lib.git
+	branch = gh-pages
+[submodule "keyple-card-calypso-java-lib"]
+	path = keyple-card-calypso-java-lib
+	url = https://github.com/eclipse-keyple/keyple-card-calypso-java-lib.git
+	branch = gh-pages
+[submodule "keyple-plugin-pcsc-java-lib"]
+	path = keyple-plugin-pcsc-java-lib
+	url = https://github.com/eclipse-keyple/keyple-plugin-pcsc-java-lib.git
+	branch = gh-pages
+[submodule "keyple-distributed-remote-java-lib"]
+	path = keyple-distributed-remote-java-lib
+	url = https://github.com/eclipse-keyple/keyple-distributed-remote-java-lib.git
+	branch = gh-pages
+[submodule "keyple-plugin-stub-java-lib"]
+	path = keyple-plugin-stub-java-lib
+	url = https://github.com/eclipse-keyple/keyple-plugin-stub-java-lib.git
+	branch = gh-pages
+[submodule "keyple-distributed-network-java-lib"]
+	path = keyple-distributed-network-java-lib
+	url = https://github.com/eclipse-keyple/keyple-distributed-network-java-lib.git
+	branch = gh-pages
+[submodule "keyple-util-java-lib"]
+	path = keyple-util-java-lib
+	url = https://github.com/eclipse-keyple/keyple-util-java-lib.git
+	branch = gh-pages
+[submodule "keyple-distributed-local-java-lib"]
+	path = keyple-distributed-local-java-lib
+	url = https://github.com/eclipse-keyple/keyple-distributed-local-java-lib.git
+	branch = gh-pages
+[submodule "keyple-service-resource-java-lib"]
+	path = keyple-service-resource-java-lib
+	url = https://github.com/eclipse-keyple/keyple-service-resource-java-lib.git
+	branch = gh-pages
+[submodule "keyple-card-generic-java-lib"]
+	path = keyple-card-generic-java-lib
+	url = https://github.com/eclipse-keyple/keyple-card-generic-java-lib.git
+	branch = gh-pages
+[submodule "keyple-service-cpp-lib"]
+	path = keyple-service-cpp-lib
+	url = https://github.com/eclipse-keyple/keyple-service-cpp-lib.git
+	branch = gh-pages
+[submodule "keyple-plugin-cpp-api"]
+	path = keyple-plugin-cpp-api
+	url = https://github.com/eclipse-keyple/keyple-plugin-cpp-api.git
+	branch = gh-pages
+[submodule "keyple-common-cpp-api"]
+	path = keyple-common-cpp-api
+	url = https://github.com/eclipse-keyple/keyple-common-cpp-api.git
+	branch = gh-pages
+[submodule "keyple-util-cpp-lib"]
+	path = keyple-util-cpp-lib
+	url = https://github.com/eclipse-keyple/keyple-util-cpp-lib.git
+	branch = gh-pages
+[submodule "keyple-service-resource-cpp-lib"]
+	path = keyple-service-resource-cpp-lib
+	url = https://github.com/eclipse-keyple/keyple-service-resource-cpp-lib.git
+	branch = gh-pages
+[submodule "keyple-card-generic-cpp-lib"]
+	path = keyple-card-generic-cpp-lib
+	url = https://github.com/eclipse-keyple/keyple-card-generic-cpp-lib.git
+	branch = gh-pages
+[submodule "keyple-card-calypso-cpp-lib"]
+	path = keyple-card-calypso-cpp-lib
+	url = https://github.com/eclipse-keyple/keyple-card-calypso-cpp-lib.git
+	branch = gh-pages
