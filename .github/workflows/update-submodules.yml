@@ -1,0 +1,58 @@
+name: Update Submodules and Publish
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [update-submodules]
+  push:
+    branches:
+      - gh-pages
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set Git user identity
+        run: |
+          git config --global user.name "Eclipse Keyple Bot"
+          git config --global user.email "${{ github.repository }}-bot@eclipse.org"
+
+      - name: Update Git submodules
+        id: commit
+        run: |
+          git submodule update --init --recursive --remote
+          git add .
+          COMMIT_MSG="Update submodules to latest commit"
+          if [[ -n $(git status --porcelain) ]]; then
+            git commit -m "$COMMIT_MSG"
+            echo "changes_detected=true" >> $GITHUB_ENV
+          else
+            echo "No changes to commit"
+            echo "changes_detected=false" >> $GITHUB_ENV
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Show the version of the submodules
+        run: git submodule foreach --recursive 'git rev-parse HEAD'
+
+      - name: Push changes if any
+        if: env.changes_detected == 'true'
+        run: |
+          git push origin HEAD:gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
