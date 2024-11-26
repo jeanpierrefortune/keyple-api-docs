@@ -15,41 +15,70 @@
         .breadcrumb {
             list-style: none;
             padding: 0;
-            margin: 0 0 20px 0;
+            margin: 20px 0;
             display: flex;
         }
-
         .breadcrumb li {
             margin-right: 10px;
         }
-
         .breadcrumb li a {
             text-decoration: none;
         }
-
         .breadcrumb li a:hover,
         .breadcrumb li a:focus {
             font-weight: bold;
         }
-
         .breadcrumb li::after {
             content: '/';
             margin-left: 10px;
         }
-
         .breadcrumb li:last-child::after {
             content: '';
         }
-
         header {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-
         header img {
             max-width: 200px;
             height: auto;
+        }
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .repo-link {
+            margin: 15px 0;
+            color: #586069;
+        }
+        .repo-link img {
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .repo-link a:hover {
+            color: #0366d6;
+            transition: color 0.2s;
+        }
+        table {
+            background: #f6f8fa;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        td, th {
+            padding: 8px 12px;
+            border: 1px solid #e1e4e8;
+        }
+        tr:hover {
+            background: #f0f3f6;
+        }
+        a {
+            color: #0366d6;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
     <title>Keyple API Documentation</title>
@@ -72,16 +101,26 @@
                 <li><a href="{{ '/' | relative_url }}">home</a></li>
                 {% assign path_parts = page.url | split: '/' %}
                 {% assign breadcrumb_url = "" %}
+                {% assign current_repo = "" %}
                 {% for part in path_parts %}
-                {% unless part == "" %}
-                {% assign breadcrumb_url = breadcrumb_url | append: "/" | append: part %}
-                <li>
-                    {{ part }}
-                </li>
-                {% endunless %}
+                    {% unless part == "" %}
+                    {% assign breadcrumb_url = breadcrumb_url | append: "/" | append: part %}
+                    {% assign current_repo = part %}
+                    <li>
+                        {{ part }}
+                    </li>
+                    {% endunless %}
                 {% endfor %}
             </ul>
         </nav>
+
+        {% unless current_repo == "" %}
+        <p class="repo-link">
+            <img src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg" width="16" height="16" alt="GitHub">&nbsp;Source code repository:
+            <a href="https://github.com/eclipse-keyple/{{ current_repo }}">{{ current_repo }}</a>
+        </p>
+        {% endunless %}
+
         {{ content }}
     </section>
     <footer>
