@@ -90,3 +90,11 @@
 	path = keyple-card-calypso-cpp-lib
 	url = https://github.com/eclipse-keyple/keyple-card-calypso-cpp-lib.git
 	branch = gh-pages
+[submodule "keyple-plugin-stub-cpp-lib"]
+	path = keyple-plugin-stub-cpp-lib
+	url = https://github.com/eclipse-keyple/keyple-plugin-stub-cpp-lib.git
+	branch = gh-pages
+[submodule "keyple-plugin-pcsc-cpp-lib"]
+	path = keyple-plugin-pcsc-cpp-lib
+	url = https://github.com/eclipse-keyple/keyple-plugin-pcsc-cpp-lib.git
+	branch = gh-pages
