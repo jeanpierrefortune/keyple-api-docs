@@ -102,3 +102,11 @@
 	path = keyple-plugin-cardresource-java-lib
 	url = https://github.com/eclipse-keyple/keyple-plugin-cardresource-java-lib.git
 	branch = gh-pages
+[submodule "keyple-card-calypso-crypto-pki-java-lib"]
+	path = keyple-card-calypso-crypto-pki-java-lib
+	url = https://github.com/eclipse-keyple/keyple-card-calypso-crypto-pki-java-lib.git
+	branch = gh-pages
+[submodule "keyple-card-calypso-crypto-legacysam-java-lib"]
+	path = keyple-card-calypso-crypto-legacysam-java-lib
+	url = https://github.com/eclipse-keyple/keyple-card-calypso-crypto-legacysam-java-lib.git
+	branch = gh-pages
