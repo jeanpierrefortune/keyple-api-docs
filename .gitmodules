@@ -98,3 +98,7 @@
 	path = keyple-plugin-pcsc-cpp-lib
 	url = https://github.com/eclipse-keyple/keyple-plugin-pcsc-cpp-lib.git
 	branch = gh-pages
+[submodule "keyple-plugin-cardresource-java-lib"]
+	path = keyple-plugin-cardresource-java-lib
+	url = https://github.com/eclipse-keyple/keyple-plugin-cardresource-java-lib.git
+	branch = gh-pages
