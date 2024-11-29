@@ -5,7 +5,7 @@
 <table>
  <thead>
    <tr>
-     <th>Repository</th>
+     <th>Component</th>
    </tr>
  </thead>
  <tbody>
