@@ -110,3 +110,15 @@
 	path = keyple-card-calypso-crypto-legacysam-java-lib
 	url = https://github.com/eclipse-keyple/keyple-card-calypso-crypto-legacysam-java-lib.git
 	branch = doc
+[submodule "keyple-interop-jsonapi-client-kmp-lib"]
+	path = keyple-interop-jsonapi-client-kmp-lib
+	url = https://github.com/eclipse-keyple/keyple-interop-jsonapi-client-kmp-lib.git
+	branch = doc
+[submodule "keyple-interop-localreader-nfcmobile-kmp-lib"]
+	path = keyple-interop-localreader-nfcmobile-kmp-lib
+	url = https://github.com/eclipse-keyple/keyple-interop-localreader-nfcmobile-kmp-lib.git
+	branch = doc
+[submodule "keyple-plugin-storagecard-java-api"]
+	path = keyple-plugin-storagecard-java-api
+	url = https://github.com/eclipse-keyple/keyple-plugin-storagecard-java-api.git
+	branch = doc
