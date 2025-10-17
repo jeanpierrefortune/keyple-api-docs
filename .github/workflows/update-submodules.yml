@@ -1,10 +1,12 @@
 name: Update Submodules and Publish
 
 on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [update-submodules]
   push:
     branches:
       - gh-pages
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}
