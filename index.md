@@ -2,9 +2,6 @@
 ---
 #### All available Keyple API documentation can be found below
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
 <style>
   .filter-container {
     margin: 20px 0;
@@ -32,17 +29,6 @@
     font-size: 0.8em;
     margin-left: 5px;
   }
-  .badge {
-    font-size: 0.85em;
-  }
-  .component-link {
-    font-weight: 500;
-    color: #0366d6;
-    text-decoration: none;
-  }
-  .component-link:hover {
-    text-decoration: underline;
-  }
 </style>
 
 <div class="filter-container">
@@ -51,19 +37,19 @@
       <label class="form-label mb-0"><strong>Filter by type:</strong></label>
     </div>
     <div class="col-auto">
-      <button class="btn btn-sm btn-outline-primary btn-filter" data-filter="all" onclick="filterByType('all')">
+      <button class="btn btn-sm btn-outline-dark btn-filter" data-filter="all" onclick="filterByType('all')">
         <i class="bi bi-check-all"></i> All
       </button>
-      <button class="btn btn-sm btn-outline-success btn-filter" data-filter="java" onclick="filterByType('java')">
+      <button class="btn btn-sm btn-outline-danger btn-filter" data-filter="java" onclick="filterByType('java')">
         <i class="bi bi-cup-hot"></i> Java
       </button>
-      <button class="btn btn-sm btn-outline-danger btn-filter" data-filter="cpp" onclick="filterByType('cpp')">
+      <button class="btn btn-sm btn-outline-primary btn-filter" data-filter="cpp" onclick="filterByType('cpp')">
         <i class="bi bi-code-slash"></i> C++
       </button>
-      <button class="btn btn-sm btn-outline-warning btn-filter" data-filter="kmp" onclick="filterByType('kmp')">
+      <button class="btn btn-sm btn-outline-success btn-filter" data-filter="kmp" onclick="filterByType('kmp')">
         <i class="bi bi-phone"></i> KMP
       </button>
-      <button class="btn btn-sm btn-outline-info btn-filter" data-filter="uml" onclick="filterByType('uml')">
+      <button class="btn btn-sm btn-outline-warning btn-filter" data-filter="uml" onclick="filterByType('uml')">
         <i class="bi bi-diagram-3"></i> UML
       </button>
     </div>
@@ -74,7 +60,7 @@
 </div>
 
 <table class="table table-hover table-striped" id="repoTable">
-  <thead class="table-dark">
+  <thead class="table-secondary">
     <tr>
       <th class="sortable" onclick="sortTable(0)">Component <span class="sort-icon"><i class="bi bi-arrow-down-up"></i></span></th>
       <th class="sortable" onclick="sortTable(1)">Type <span class="sort-icon"><i class="bi bi-arrow-down-up"></i></span></th>
@@ -96,16 +82,16 @@
 
           {% if subdir contains "-java-" %}
             {% assign type = "java" %}
-            {% assign type_badge = "success" %}
+            {% assign type_badge = "danger" %}
           {% elsif subdir contains "-cpp-" %}
             {% assign type = "cpp" %}
-            {% assign type_badge = "danger" %}
+            {% assign type_badge = "primary" %}
           {% elsif subdir contains "kmp" %}
             {% assign type = "kmp" %}
-            {% assign type_badge = "warning" %}
+            {% assign type_badge = "success" %}
           {% elsif subdir contains "-uml-" %}
             {% assign type = "uml" %}
-            {% assign type_badge = "info" %}
+            {% assign type_badge = "warning" %}
           {% endif %}
 
           {% if subdir contains "-api" %}
@@ -141,16 +127,21 @@
     // Update button states
     document.querySelectorAll('.btn-filter').forEach(btn => {
       if (btn.getAttribute('data-filter') === type) {
-        btn.classList.remove('btn-outline-primary', 'btn-outline-success', 'btn-outline-danger', 'btn-outline-warning', 'btn-outline-info');
+        btn.classList.remove('btn-outline-dark', 'btn-outline-danger', 'btn-outline-primary', 'btn-outline-success', 'btn-outline-warning');
         btn.classList.add('btn-primary');
+        if (type === 'all') btn.className = 'btn btn-sm btn-dark btn-filter';
+        else if (type === 'java') btn.className = 'btn btn-sm btn-danger btn-filter';
+        else if (type === 'cpp') btn.className = 'btn btn-sm btn-primary btn-filter';
+        else if (type === 'kmp') btn.className = 'btn btn-sm btn-success btn-filter';
+        else if (type === 'uml') btn.className = 'btn btn-sm btn-warning btn-filter';
       } else {
         const filterType = btn.getAttribute('data-filter');
-        btn.classList.remove('btn-primary');
-        if (filterType === 'all') btn.className = 'btn btn-sm btn-outline-primary btn-filter';
-        else if (filterType === 'java') btn.className = 'btn btn-sm btn-outline-success btn-filter';
-        else if (filterType === 'cpp') btn.className = 'btn btn-sm btn-outline-danger btn-filter';
-        else if (filterType === 'kmp') btn.className = 'btn btn-sm btn-outline-warning btn-filter';
-        else if (filterType === 'uml') btn.className = 'btn btn-sm btn-outline-info btn-filter';
+        btn.classList.remove('btn-dark', 'btn-danger', 'btn-primary', 'btn-success', 'btn-warning');
+        if (filterType === 'all') btn.className = 'btn btn-sm btn-outline-dark btn-filter';
+        else if (filterType === 'java') btn.className = 'btn btn-sm btn-outline-danger btn-filter';
+        else if (filterType === 'cpp') btn.className = 'btn btn-sm btn-outline-primary btn-filter';
+        else if (filterType === 'kmp') btn.className = 'btn btn-sm btn-outline-success btn-filter';
+        else if (filterType === 'uml') btn.className = 'btn btn-sm btn-outline-warning btn-filter';
       }
     });
   }
