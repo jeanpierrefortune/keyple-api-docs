@@ -6,7 +6,7 @@ on:
     types: [update-submodules]
   push:
     branches:
-      - gh-pages
+      - gh-pages-source
 
 concurrency:
   group: ${{ github.workflow }}
@@ -22,7 +22,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
         with:
-          ref: gh-pages
+          ref: gh-pages-source
           submodules: recursive
           fetch-depth: 0
 
@@ -46,65 +46,91 @@ jobs:
 
           git submodule update --init --recursive --remote
 
-          # Clean old patch versions BEFORE committing
-          echo "Cleaning old patch versions..."
+          # Convert submodules to regular directories (keep .gitmodules for next run)
+          echo "Converting submodules to regular directories..."
           git submodule foreach '
-            echo "Processing submodule: $(basename $(pwd))"
+            echo "De-gitifying $(basename $(pwd))"
+            rm -rf .git
+          '
 
-            # Find all version directories (matching X.Y.Z pattern)
-            declare -A version_groups
+          # Remove submodules from git index and add them as regular files
+          git config --file .gitmodules --get-regexp path | awk '{ print $2 }' | while read -r submodule_path; do
+            echo "Converting $submodule_path to regular directory"
+            git rm --cached "$submodule_path" 2>/dev/null || true
+          done
 
-            for version_dir in */; do
-              if [ -d "$version_dir" ]; then
-                version_name=$(basename "$version_dir")
+          git add .
 
-                # Check if it matches semver pattern (X.Y.Z)
-                if [[ "$version_name" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-                  major="${BASH_REMATCH[1]}"
-                  minor="${BASH_REMATCH[2]}"
-                  patch="${BASH_REMATCH[3]}"
-                  group_key="${major}.${minor}"
+          # Clean old patch versions
+          echo "Cleaning old patch versions..."
+          for module in *; do
+            if [ -d "$module" ]; then
+              # Skip special directories
+              if [[ "$module" == ".git" ]] || [[ "$module" == "_layouts" ]] || [[ "$module" == ".github" ]] || [[ "$module" == ".idea" ]]; then
+                continue
+              fi
 
-                  # Store or update the highest patch version for this group
-                  if [[ -z "${version_groups[$group_key]}" ]]; then
-                    version_groups[$group_key]="$patch:$version_name"
-                  else
-                    current_patch=$(echo "${version_groups[$group_key]}" | cut -d: -f1)
-                    if (( patch > current_patch )); then
+              echo "Processing module: $module"
+
+              # Find all version directories (matching X.Y.Z pattern)
+              declare -A version_groups
+
+              for version_dir in "$module"/*/; do
+                if [ -d "$version_dir" ]; then
+                  version_name=$(basename "$version_dir")
+
+                  # Check if it matches semver pattern (X.Y.Z)
+                  if [[ "$version_name" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+                    major="${BASH_REMATCH[1]}"
+                    minor="${BASH_REMATCH[2]}"
+                    patch="${BASH_REMATCH[3]}"
+                    group_key="${major}.${minor}"
+
+                    # Store or update the highest patch version for this group
+                    if [[ -z "${version_groups[$group_key]}" ]]; then
                       version_groups[$group_key]="$patch:$version_name"
+                    else
+                      current_patch=$(echo "${version_groups[$group_key]}" | cut -d: -f1)
+                      if (( patch > current_patch )); then
+                        version_groups[$group_key]="$patch:$version_name"
+                      fi
                     fi
                   fi
                 fi
-              fi
-            done
+              done
 
-            # Create a list of versions to keep
-            declare -A keep_versions
-            for group in "${!version_groups[@]}"; do
-              version_to_keep=$(echo "${version_groups[$group]}" | cut -d: -f2)
-              keep_versions[$version_to_keep]=1
-              echo "Keeping $version_to_keep (highest patch for $group)"
-            done
+              # Create a list of versions to keep
+              declare -A keep_versions
+              for group in "${!version_groups[@]}"; do
+                version_to_keep=$(echo "${version_groups[$group]}" | cut -d: -f2)
+                keep_versions[$version_to_keep]=1
+                echo "Keeping $module/$version_to_keep (highest patch for $group)"
+              done
 
-            # Delete versions not in the keep list
-            for version_dir in */; do
-              if [ -d "$version_dir" ]; then
-                version_name=$(basename "$version_dir")
+              # Delete versions not in the keep list
+              for version_dir in "$module"/*/; do
+                if [ -d "$version_dir" ]; then
+                  version_name=$(basename "$version_dir")
 
-                # Check if it is a semver version
-                if [[ "$version_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                  if [[ -z "${keep_versions[$version_name]}" ]]; then
-                    echo "Deleting $version_name"
-                    rm -rf "$version_dir"
+                  # Check if it is a semver version
+                  if [[ "$version_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                    if [[ -z "${keep_versions[$version_name]}" ]]; then
+                      echo "Deleting $module/$version_name"
+                      rm -rf "$version_dir"
+                    fi
+                  else
+                    echo "Preserving special directory: $module/$version_name"
                   fi
-                else
-                  echo "Preserving special directory: $version_name"
                 fi
-              fi
-            done
-          '
+              done
 
-          # Now add and commit everything together
+              # Clean up arrays
+              unset version_groups
+              unset keep_versions
+            fi
+          done
+
+          # Add and commit everything
           git add .
           COMMIT_MSG="Update submodules and clean old patch versions"
           if [[ -n $(git status --porcelain) ]]; then
@@ -116,9 +142,6 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Show the version of the submodules
-        run: git submodule foreach --recursive 'git rev-parse HEAD'
 
       - name: Process UML documentation
         if: env.changes_detected == 'true'
@@ -199,9 +222,9 @@ jobs:
 
           echo "UML documentation processing completed."
 
-      - name: Push changes if any
+      - name: Push changes to gh-pages
         if: env.changes_detected == 'true'
         run: |
-          git push origin HEAD:gh-pages
+          git push origin HEAD:gh-pages --force
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
