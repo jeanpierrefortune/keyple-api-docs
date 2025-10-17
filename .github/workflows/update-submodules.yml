@@ -54,9 +54,9 @@ jobs:
           git config user.name "Eclipse Keyple Bot"
           git config user.email "${{ github.repository }}-bot@eclipse.org"
 
-          # Copy all content from source (excluding .git)
+          # Copy all content from source (excluding .git and .gitmodules)
           echo "Copying content to clean repository..."
-          rsync -av --exclude='.git' "$SOURCE_DIR/" .
+          rsync -av --exclude='.git' --exclude='.gitmodules' "$SOURCE_DIR/" .
 
           # Add all files as regular files (no submodule history here!)
           git add -A
