@@ -112,7 +112,8 @@ jobs:
                 echo "Keeping $module/$version_to_keep (highest patch for $group)"
               done
 
-              # Delete versions not in the keep list
+              # Delete versions not in the keep list and track deleted versions
+              declare -a deleted_versions
               for version_dir in "$module"/*/; do
                 if [ -d "$version_dir" ]; then
                   version_name=$(basename "$version_dir")
@@ -122,6 +123,7 @@ jobs:
                     if [[ -z "${keep_versions[$version_name]}" ]]; then
                       echo "Deleting $module/$version_name"
                       rm -rf "$version_dir"
+                      deleted_versions+=("$version_name")
                     fi
                   else
                     echo "Preserving special directory: $module/$version_name"
@@ -129,9 +131,41 @@ jobs:
                 fi
               done
 
+              # Update list_versions.md if it exists
+              if [ -f "$module/list_versions.md" ] && [ ${#deleted_versions[@]} -gt 0 ]; then
+                echo "Updating $module/list_versions.md..."
+
+                # Create a temporary file
+                temp_file=$(mktemp)
+
+                # Read the file and filter out lines containing deleted versions
+                while IFS= read -r line; do
+                  # Check if line contains any deleted version
+                  keep_line=true
+                  for deleted_version in "${deleted_versions[@]}"; do
+                    # Check if the line contains the version (looking for version number in markdown links)
+                    if [[ "$line" =~ \|[[:space:]]*${deleted_version}[[:space:]]*\| ]] || \
+                       [[ "$line" =~ \(${deleted_version}\) ]] || \
+                       [[ "$line" =~ \(${deleted_version}/ ]]; then
+                      keep_line=false
+                      break
+                    fi
+                  done
+
+                  if [ "$keep_line" = true ]; then
+                    echo "$line" >> "$temp_file"
+                  fi
+                done < "$module/list_versions.md"
+
+                # Replace the original file
+                mv "$temp_file" "$module/list_versions.md"
+                echo "Updated $module/list_versions.md (removed ${#deleted_versions[@]} version entries)"
+              fi
+
               # Clean up arrays
               unset version_groups
               unset keep_versions
+              unset deleted_versions
             fi
           done
 
