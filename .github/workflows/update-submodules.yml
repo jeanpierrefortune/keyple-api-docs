@@ -35,8 +35,8 @@ jobs:
           git config --global user.name "Eclipse Keyple Bot"
           git config --global user.email "${{ github.repository }}-bot@eclipse.org"
 
-      - name: Update Git submodules and clean versions
-        id: commit
+      - name: Build and publish to gh-pages
+        id: build_publish
         run: |
           # If the workflow has been started manually, skip detection.
           if [[ "${{ env.changes_detected }}" == "true" ]]; then
@@ -47,7 +47,7 @@ jobs:
           git submodule update --init --recursive --remote
 
           # Create a completely fresh git repository to avoid submodule detection
-          echo "Creating fresh repository without submodule history..."
+          echo "=== Creating fresh repository without submodule history ==="
 
           # Save current location
           SOURCE_DIR=$(pwd)
@@ -69,17 +69,13 @@ jobs:
           # Add all files as regular files (no submodule history here!)
           git add -A
 
-          # Create commit
+          # Create initial commit
           git commit -m "Update submodules and clean old patch versions"
 
           echo "Clean repository created successfully"
-          echo "changes_detected=true" >> $GITHUB_ENV
-
-          # Now work in the clean repo for version cleanup and UML generation
-          # (Stay in CLEAN_REPO - don't go back to SOURCE_DIR)
 
           # Clean old patch versions
-          echo "Cleaning old patch versions..."
+          echo "=== Cleaning old patch versions ==="
           for module in *; do
             if [ -d "$module" ]; then
               # Skip special directories
@@ -151,20 +147,10 @@ jobs:
           git add -A
           git commit --amend --no-edit
 
-          # Store the clean repo path for later steps
-          echo "CLEAN_REPO_PATH=$CLEAN_REPO" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Process UML documentation
+          echo "=== Processing UML documentation ==="
 
-      - name: Process UML documentation
-        if: env.changes_detected == 'true'
-        run: |
-          echo "Processing UML documentation..."
-
-          # Work in the clean repository
-          cd "${{ env.CLEAN_REPO_PATH }}"
-
-          # Step 1: Delete all folders containing "-uml" in gh-pages
+          # Delete all folders containing "-uml"
           echo "Deleting existing -uml folders..."
           for dir in *-uml*/; do
             if [ -d "$dir" ]; then
@@ -173,12 +159,10 @@ jobs:
             fi
           done
 
-          # Step 2: Process all modules (not as git submodules)
+          # Process all modules
           echo "Processing modules..."
           for module in *; do
             if [ -d "$module" ]; then
-              echo "Checking module: $module"
-          
               # Check if module name contains "-java-" or "kmp"
               if [[ "$module" == *"-java-"* ]] || [[ "$module" == *"kmp"* ]]; then
                 echo "Processing module: $module"
@@ -191,8 +175,6 @@ jobs:
                 fi
 
                 echo "Creating UML version: $uml_module"
-
-                # Create the UML module directory
                 mkdir -p "$uml_module"
 
                 # Copy only api_class_diagram.svg files from version folders
@@ -226,7 +208,7 @@ jobs:
           done
 
           # Add all changes to git
-          git add .
+          git add -A
 
           # Commit UML changes if any
           if [[ -n $(git status --porcelain) ]]; then
@@ -236,18 +218,9 @@ jobs:
             echo "No UML documentation changes to commit."
           fi
 
-          echo "UML documentation processing completed."
-
-      - name: Push changes to gh-pages
-        if: env.changes_detected == 'true'
-        run: |
-          # Push from the clean repository
-          cd "${{ env.CLEAN_REPO_PATH }}"
-
-          # Add remote pointing to the main repository
+          # Push to gh-pages
+          echo "=== Pushing to gh-pages ==="
           git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-
-          # Push to gh-pages with force
           git push origin HEAD:gh-pages --force
 
           echo "Successfully pushed to gh-pages"
