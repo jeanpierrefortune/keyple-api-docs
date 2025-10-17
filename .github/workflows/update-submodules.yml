@@ -74,8 +74,17 @@ jobs:
           # Clean up temp directory
           rm -rf "$TEMP_DIR"
 
-          # Add everything as regular files
-          git add -A
+          # Double-check: remove any remaining .git directories
+          find . -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
+          find . -name ".git" -type f -delete 2>/dev/null || true
+
+          # Add all files individually to avoid git detecting submodules
+          echo "Adding files to git index..."
+          find . -type f -not -path './.git/*' -print0 | xargs -0 git add --force --
+
+          # Add empty directories if any
+          find . -type d -empty -not -path './.git/*' -exec touch {}/.gitkeep \; 2>/dev/null || true
+          find . -name ".gitkeep" -print0 | xargs -0 git add --force -- 2>/dev/null || true
 
           # Clean old patch versions
           echo "Cleaning old patch versions..."
