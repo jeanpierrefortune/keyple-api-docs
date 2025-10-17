@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /latest-stable/
+Disallow: /*/[0-9]*/

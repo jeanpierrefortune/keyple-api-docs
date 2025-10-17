@@ -1,0 +1,17 @@
+var searchData=
+[
+  ['reader_0',['Reader',['../classkeyple_1_1core_1_1service_1_1_reader.html',1,'keyple::core::service']]],
+  ['reader_2eh_1',['Reader.h',['../_reader_8h.html',1,'']]],
+  ['reader_5fconnected_2',['READER_CONNECTED',['../classkeyple_1_1core_1_1service_1_1_plugin_event.html#adc12855515978120976de2a90305eb0aa9b08d947a4d1f7ac079a57c3d8f33241',1,'keyple::core::service::PluginEvent']]],
+  ['reader_5fdisconnected_3',['READER_DISCONNECTED',['../classkeyple_1_1core_1_1service_1_1_plugin_event.html#adc12855515978120976de2a90305eb0aa03aa995031567110531eaf2377c8195d',1,'keyple::core::service::PluginEvent']]],
+  ['reader_5fmonitoring_5ferror_4',['READER_MONITORING_ERROR',['../classkeyple_1_1core_1_1service_1_1_observable_local_reader_adapter.html#a65d6717ffe5f1f88e79163cf8c89829c',1,'keyple::core::service::ObservableLocalReaderAdapter']]],
+  ['readerevent_5',['ReaderEvent',['../classkeyple_1_1core_1_1service_1_1_reader_event.html',1,'keyple::core::service']]],
+  ['readerevent_2eh_6',['ReaderEvent.h',['../_reader_event_8h.html',1,'']]],
+  ['readereventadapter_7',['ReaderEventAdapter',['../classkeyple_1_1core_1_1service_1_1_reader_event_adapter.html',1,'keyple::core::service::ReaderEventAdapter'],['../classkeyple_1_1core_1_1service_1_1_reader_event_adapter.html#a82683f61a6463510fa8f27e3dd1483d7',1,'keyple::core::service::ReaderEventAdapter::ReaderEventAdapter()']]],
+  ['readereventadapter_2ecpp_8',['ReaderEventAdapter.cpp',['../_reader_event_adapter_8cpp.html',1,'']]],
+  ['readereventadapter_2eh_9',['ReaderEventAdapter.h',['../_reader_event_adapter_8h.html',1,'']]],
+  ['registerplugin_10',['registerPlugin',['../classkeyple_1_1core_1_1service_1_1_smart_card_service.html#adbf65ec5a12dc617f5227159b5611eba',1,'keyple::core::service::SmartCardService::registerPlugin()'],['../classkeyple_1_1core_1_1service_1_1_smart_card_service_adapter.html#af9fe8956c7e515e988ce6b7bb043a135',1,'keyple::core::service::SmartCardServiceAdapter::registerPlugin()']]],
+  ['releasechannel_11',['releaseChannel',['../classkeyple_1_1core_1_1service_1_1_local_reader_adapter.html#a2296c2eec3c46eeb945c6a060ee9417b',1,'keyple::core::service::LocalReaderAdapter']]],
+  ['releasereader_12',['releaseReader',['../classkeyple_1_1core_1_1service_1_1_local_pool_plugin_adapter.html#a9980dc7db47448a8c3c75f76bafd36e5',1,'keyple::core::service::LocalPoolPluginAdapter::releaseReader()'],['../classkeyple_1_1core_1_1service_1_1_pool_plugin.html#a88dc6bfbb802b7ca1fb9640f72b2796e',1,'keyple::core::service::PoolPlugin::releaseReader()']]],
+  ['removeobserver_13',['removeObserver',['../classkeyple_1_1core_1_1service_1_1_abstract_observable_local_plugin_adapter.html#a2b7f8cd49a9a264e66de8b717ce8d22a',1,'keyple::core::service::AbstractObservableLocalPluginAdapter::removeObserver()'],['../classkeyple_1_1core_1_1service_1_1_observable_local_plugin_adapter.html#a5f60d3264f33ecab08cc46d91fa65e96',1,'keyple::core::service::ObservableLocalPluginAdapter::removeObserver()'],['../classkeyple_1_1core_1_1service_1_1_observable_local_reader_adapter.html#a48b5e736bf4de26636b818b3e1a6fb08',1,'keyple::core::service::ObservableLocalReaderAdapter::removeObserver()'],['../classkeyple_1_1core_1_1service_1_1_observable_plugin.html#a9e25b55a792a2fe2fcb76e196f61dca5',1,'keyple::core::service::ObservablePlugin::removeObserver()'],['../classkeyple_1_1core_1_1service_1_1_observation_manager_adapter.html#abaa490b7b735414d2b88d9557d8da701',1,'keyple::core::service::ObservationManagerAdapter::removeObserver()']]]
+];

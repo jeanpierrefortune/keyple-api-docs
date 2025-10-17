@@ -1,0 +1,11 @@
+<map id="keyple::core::service::Plugin" name="keyple::core::service::Plugin">
+<area shape="rect" id="node1" title=" " alt="" coords="5,73,144,115"/>
+<area shape="rect" id="node2" href="$classkeyple_1_1core_1_1service_1_1_abstract_plugin_adapter.html" title=" " alt="" coords="192,8,351,49"/>
+<area shape="rect" id="node8" href="$classkeyple_1_1core_1_1service_1_1_observable_plugin.html" title=" " alt="" coords="413,136,551,177"/>
+<area shape="rect" id="node9" href="$classkeyple_1_1core_1_1service_1_1_pool_plugin.html" title=" " alt="" coords="202,73,341,115"/>
+<area shape="rect" id="node3" href="$classkeyple_1_1core_1_1service_1_1_local_plugin_adapter.html" title=" " alt="" coords="411,5,553,47"/>
+<area shape="rect" id="node7" href="$classkeyple_1_1core_1_1service_1_1_local_pool_plugin_adapter.html" title=" " alt="" coords="399,71,565,112"/>
+<area shape="rect" id="node4" href="$classkeyple_1_1core_1_1service_1_1_abstract_observable_local_plugin_adapter.html" title=" " alt="" coords="613,63,824,119"/>
+<area shape="rect" id="node5" href="$classkeyple_1_1core_1_1service_1_1_autonomous_observable_local_plugin_adapter.html" title=" " alt="" coords="876,27,1075,83"/>
+<area shape="rect" id="node6" href="$classkeyple_1_1core_1_1service_1_1_observable_local_plugin_adapter.html" title=" " alt="" coords="872,107,1079,148"/>
+</map>
