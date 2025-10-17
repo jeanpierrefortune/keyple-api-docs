@@ -226,6 +226,10 @@ jobs:
                 if [ -f "$module/list_versions.md" ]; then
                   echo "Copying and modifying list_versions.md..."
                   sed 's/\[API documentation\]([^)]*)<br>//g' "$module/list_versions.md" > "$uml_module/list_versions.md"
+
+                  # Create index.md for Jekyll to serve the directory
+                  echo "Creating index.md for UML module..."
+                  cat "$uml_module/list_versions.md" > "$uml_module/index.md"
                 fi
 
                 echo "Finished processing $module -> $uml_module"
