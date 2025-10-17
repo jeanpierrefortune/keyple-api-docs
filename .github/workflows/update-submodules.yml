@@ -46,19 +46,30 @@ jobs:
 
           git submodule update --init --recursive --remote
 
-          # Convert submodules to regular directories (keep .gitmodules for next run)
+          # Convert submodules to regular directories
           echo "Converting submodules to regular directories..."
+
+          # Save .gitmodules for later restoration
+          cp .gitmodules .gitmodules.backup
+
+          # Remove all .git directories from submodules
           git submodule foreach '
             echo "De-gitifying $(basename $(pwd))"
             rm -rf .git
           '
 
-          # Remove submodules from git index and add them as regular files
-          git config --file .gitmodules --get-regexp path | awk '{ print $2 }' | while read -r submodule_path; do
-            echo "Converting $submodule_path to regular directory"
+          # Remove submodule configuration to allow adding as regular files
+          rm -rf .git/modules
+          rm -f .gitmodules
+
+          # Remove submodules from git index
+          git config --file .gitmodules.backup --get-regexp path | awk '{ print $2 }' | while read -r submodule_path; do
+            echo "Removing submodule reference: $submodule_path"
             git rm --cached "$submodule_path" 2>/dev/null || true
           done
 
+          # Restore .gitmodules and add everything as regular files
+          mv .gitmodules.backup .gitmodules
           git add .
 
           # Clean old patch versions
