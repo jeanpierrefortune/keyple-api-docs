@@ -60,6 +60,92 @@ jobs:
       - name: Show the version of the submodules
         run: git submodule foreach --recursive 'git rev-parse HEAD'
 
+      - name: Clean old patch versions
+        if: env.changes_detected == 'true'
+        run: |
+          echo "Cleaning old patch versions..."
+
+          # Process each module
+          for module in *; do
+            if [ -d "$module" ]; then
+              # Skip special directories
+              if [[ "$module" == ".git" ]] || [[ "$module" == "_layouts" ]] || [[ "$module" == ".github" ]] || [[ "$module" == ".idea" ]]; then
+                continue
+              fi
+
+              echo "Processing module: $module"
+
+              # Find all version directories (matching X.Y.Z pattern)
+              declare -A version_groups
+
+              for version_dir in "$module"/*/; do
+                if [ -d "$version_dir" ]; then
+                  version_name=$(basename "$version_dir")
+
+                  # Check if it matches semver pattern (X.Y.Z)
+                  if [[ "$version_name" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+                    major="${BASH_REMATCH[1]}"
+                    minor="${BASH_REMATCH[2]}"
+                    patch="${BASH_REMATCH[3]}"
+                    group_key="${major}.${minor}"
+
+                    # Store or update the highest patch version for this group
+                    if [[ -z "${version_groups[$group_key]}" ]]; then
+                      version_groups[$group_key]="$patch:$version_name"
+                    else
+                      current_patch=$(echo "${version_groups[$group_key]}" | cut -d: -f1)
+                      if (( patch > current_patch )); then
+                        version_groups[$group_key]="$patch:$version_name"
+                      fi
+                    fi
+                  fi
+                fi
+              done
+
+              # Create a list of versions to keep
+              declare -A keep_versions
+              for group in "${!version_groups[@]}"; do
+                version_to_keep=$(echo "${version_groups[$group]}" | cut -d: -f2)
+                keep_versions[$version_to_keep]=1
+                echo "Keeping $module/$version_to_keep (highest patch for $group)"
+              done
+
+              # Delete versions not in the keep list
+              for version_dir in "$module"/*/; do
+                if [ -d "$version_dir" ]; then
+                  version_name=$(basename "$version_dir")
+
+                  # Check if it's a semver version
+                  if [[ "$version_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                    if [[ -z "${keep_versions[$version_name]}" ]]; then
+                      echo "Deleting $module/$version_name"
+                      rm -rf "$version_dir"
+                    fi
+                  else
+                    echo "Preserving special directory: $module/$version_name"
+                  fi
+                fi
+              done
+
+              # Clean up arrays
+              unset version_groups
+              unset keep_versions
+            fi
+          done
+
+          # Add changes to git
+          git add .
+
+          # Commit version cleanup if any
+          if [[ -n $(git status --porcelain) ]]; then
+            git commit -m "Clean old patch versions, keep only highest patch for each minor version"
+            echo "Version cleanup changes committed."
+          else
+            echo "No version cleanup changes to commit."
+          fi
+
+          echo "Version cleanup completed."
+
       - name: Process UML documentation
         if: env.changes_detected == 'true'
         run: |
