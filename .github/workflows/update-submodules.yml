@@ -1,0 +1,258 @@
+name: Update Submodules and Publish
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [update-submodules]
+  push:
+    branches:
+      - gh-pages-source
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages-source
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set Git user identity
+        run: |
+          git config --global user.name "Eclipse Keyple Bot"
+          git config --global user.email "${{ github.repository }}-bot@eclipse.org"
+
+      - name: Build and publish to gh-pages
+        id: build_publish
+        run: |
+          echo "Starting build and publish process..."
+
+          git submodule update --init --recursive --remote
+
+          # Create a completely fresh git repository to avoid submodule detection
+          echo "=== Creating fresh repository without submodule history ==="
+
+          # Save current location
+          SOURCE_DIR=$(pwd)
+
+          # Create a temporary directory for the new clean repository
+          CLEAN_REPO=$(mktemp -d)
+          echo "Clean repository: $CLEAN_REPO"
+
+          # Initialize a brand new git repository
+          cd "$CLEAN_REPO"
+          git init
+          git config user.name "Eclipse Keyple Bot"
+          git config user.email "${{ github.repository }}-bot@eclipse.org"
+
+          # Copy all content from source (excluding .git and .gitmodules)
+          echo "Copying content to clean repository..."
+          rsync -av --exclude='.git' --exclude='.gitmodules' "$SOURCE_DIR/" .
+
+          # Add all files as regular files (no submodule history here!)
+          git add -A
+
+          # Create initial commit
+          git commit -m "Update submodules and clean old patch versions"
+
+          echo "Clean repository created successfully"
+
+          # Clean old patch versions
+          echo "=== Cleaning old patch versions ==="
+          for module in *; do
+            if [ -d "$module" ]; then
+              # Skip special directories
+              if [[ "$module" == ".git" ]] || [[ "$module" == "_layouts" ]] || [[ "$module" == ".github" ]] || [[ "$module" == ".idea" ]]; then
+                continue
+              fi
+
+              echo "Processing module: $module"
+
+              # Find all version directories (matching X.Y.Z pattern)
+              declare -A version_groups
+
+              for version_dir in "$module"/*/; do
+                if [ -d "$version_dir" ]; then
+                  version_name=$(basename "$version_dir")
+
+                  # Check if it matches semver pattern (X.Y.Z)
+                  if [[ "$version_name" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+                    major="${BASH_REMATCH[1]}"
+                    minor="${BASH_REMATCH[2]}"
+                    patch="${BASH_REMATCH[3]}"
+                    group_key="${major}.${minor}"
+
+                    # Store or update the highest patch version for this group
+                    if [[ -z "${version_groups[$group_key]}" ]]; then
+                      version_groups[$group_key]="$patch:$version_name"
+                    else
+                      current_patch=$(echo "${version_groups[$group_key]}" | cut -d: -f1)
+                      if (( patch > current_patch )); then
+                        version_groups[$group_key]="$patch:$version_name"
+                      fi
+                    fi
+                  fi
+                fi
+              done
+
+              # Create a list of versions to keep
+              declare -A keep_versions
+              for group in "${!version_groups[@]}"; do
+                version_to_keep=$(echo "${version_groups[$group]}" | cut -d: -f2)
+                keep_versions[$version_to_keep]=1
+                echo "Keeping $module/$version_to_keep (highest patch for $group)"
+              done
+
+              # Delete versions not in the keep list and track deleted versions
+              declare -a deleted_versions
+              for version_dir in "$module"/*/; do
+                if [ -d "$version_dir" ]; then
+                  version_name=$(basename "$version_dir")
+
+                  # Check if it is a semver version
+                  if [[ "$version_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                    if [[ -z "${keep_versions[$version_name]}" ]]; then
+                      echo "Deleting $module/$version_name"
+                      rm -rf "$version_dir"
+                      deleted_versions+=("$version_name")
+                    fi
+                  else
+                    echo "Preserving special directory: $module/$version_name"
+                  fi
+                fi
+              done
+
+              # Update list_versions.md if it exists
+              if [ -f "$module/list_versions.md" ] && [ ${#deleted_versions[@]} -gt 0 ]; then
+                echo "Updating $module/list_versions.md..."
+
+                # Create a temporary file
+                temp_file=$(mktemp)
+
+                # Read the file and filter out lines containing deleted versions
+                while IFS= read -r line; do
+                  # Check if line contains any deleted version
+                  keep_line=true
+                  for deleted_version in "${deleted_versions[@]}"; do
+                    # Check if the line contains the version (looking for version number in markdown links)
+                    if [[ "$line" =~ \|[[:space:]]*${deleted_version}[[:space:]]*\| ]] || \
+                       [[ "$line" =~ \(${deleted_version}\) ]] || \
+                       [[ "$line" =~ \(${deleted_version}/ ]]; then
+                      keep_line=false
+                      break
+                    fi
+                  done
+
+                  if [ "$keep_line" = true ]; then
+                    echo "$line" >> "$temp_file"
+                  fi
+                done < "$module/list_versions.md"
+
+                # Replace the original file
+                mv "$temp_file" "$module/list_versions.md"
+                echo "Updated $module/list_versions.md (removed ${#deleted_versions[@]} version entries)"
+              fi
+
+              # Clean up arrays
+              unset version_groups
+              unset keep_versions
+              unset deleted_versions
+            fi
+          done
+
+          # Amend the commit with cleaned versions
+          git add -A
+          git commit --amend --no-edit
+
+          # Process UML documentation
+          echo "=== Processing UML documentation ==="
+
+          # Delete all folders containing "-uml"
+          echo "Deleting existing -uml folders..."
+          for dir in *-uml*/; do
+            if [ -d "$dir" ]; then
+              echo "Deleting $dir"
+              rm -rf "$dir"
+            fi
+          done
+
+          # Process all modules
+          echo "Processing modules..."
+          for module in *; do
+            if [ -d "$module" ]; then
+              # Check if module name contains "-java-" or "kmp"
+              if [[ "$module" == *"-java-"* ]] || [[ "$module" == *"kmp"* ]]; then
+                echo "Processing module: $module"
+
+                # Determine the UML folder name
+                if [[ "$module" == *"-java-"* ]]; then
+                  uml_module="${module//-java-/-uml-}"
+                else
+                  uml_module="${module//kmp/uml}"
+                fi
+
+                echo "Creating UML version: $uml_module"
+                mkdir -p "$uml_module"
+
+                # Copy only api_class_diagram.svg files from version folders
+                for version_dir in "$module"/*/; do
+                  if [ -d "$version_dir" ]; then
+                    version_name=$(basename "$version_dir")
+
+                    # Skip special directories
+                    if [[ "$version_name" == "_layouts" ]] || [[ "$version_name" == ".git" ]]; then
+                      continue
+                    fi
+
+                    # Check if api_class_diagram.svg exists in this version
+                    if [ -f "$version_dir/api_class_diagram.svg" ]; then
+                      echo "Copying UML diagram for version: $version_name"
+                      mkdir -p "$uml_module/$version_name"
+                      cp "$version_dir/api_class_diagram.svg" "$uml_module/$version_name/"
+                    fi
+                  fi
+                done
+
+                # Copy and modify list_versions.md
+                if [ -f "$module/list_versions.md" ]; then
+                  echo "Copying and modifying list_versions.md..."
+                  sed 's/\[API documentation\]([^)]*)<br>//g' "$module/list_versions.md" > "$uml_module/list_versions.md"
+
+                  # Create index.md for Jekyll to serve the directory
+                  echo "Creating index.md for UML module..."
+                  cat "$uml_module/list_versions.md" > "$uml_module/index.md"
+                fi
+
+                echo "Finished processing $module -> $uml_module"
+              fi
+            fi
+          done
+
+          # Add all changes to git
+          git add -A
+
+          # Commit UML changes if any
+          if [[ -n $(git status --porcelain) ]]; then
+            git commit -m "Generate UML documentation from updated modules"
+            echo "UML documentation changes committed."
+          else
+            echo "No UML documentation changes to commit."
+          fi
+
+          # Push to gh-pages
+          echo "=== Pushing to gh-pages ==="
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push origin HEAD:gh-pages --force
+
+          echo "Successfully pushed to gh-pages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
