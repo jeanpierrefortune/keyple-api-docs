@@ -26,10 +26,6 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Force changes_detected when manually triggered
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: echo "changes_detected=true" >> $GITHUB_ENV
-
       - name: Set Git user identity
         run: |
           git config --global user.name "Eclipse Keyple Bot"
@@ -38,11 +34,7 @@ jobs:
       - name: Build and publish to gh-pages
         id: build_publish
         run: |
-          # If the workflow has been started manually, skip detection.
-          if [[ "${{ env.changes_detected }}" == "true" ]]; then
-            echo "Manual trigger detected — skipping submodule change check."
-            exit 0
-          fi
+          echo "Starting build and publish process..."
 
           git submodule update --init --recursive --remote
 
