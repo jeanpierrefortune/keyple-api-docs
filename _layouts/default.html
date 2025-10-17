@@ -12,6 +12,41 @@
     <![endif]-->
     {% include head-custom.html %}
     <style>
+        /* Wider layout with column structure */
+        .wrapper {
+            width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Left column: header */
+        header {
+            width: 350px;
+            float: left;
+            position: fixed;
+            -webkit-font-smoothing: subpixel-antialiased;
+        }
+
+        header img {
+            max-height: 80px;
+            width: auto;
+        }
+
+        /* Right column: main content */
+        section {
+            width: 850px;
+            float: right;
+            padding-bottom: 50px;
+        }
+
+        /* Left column: footer (fixed at bottom) */
+        footer {
+            width: 250px;
+            float: left;
+            position: fixed;
+            bottom: 50px;
+            -webkit-font-smoothing: subpixel-antialiased;
+        }
+
         .breadcrumb {
             list-style: none;
             padding: 0;
@@ -35,19 +70,6 @@
         .breadcrumb li:last-child::after {
             content: '';
         }
-        header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        header img {
-            max-width: 200px;
-            height: auto;
-        }
-        .wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
         .repo-link {
             margin: 15px 0;
             color: #586069;
@@ -64,6 +86,7 @@
             background: #f6f8fa;
             border-collapse: collapse;
             width: 100%;
+            margin: 20px 0;
         }
         td, th {
             padding: 8px 12px;
@@ -79,6 +102,31 @@
         }
         a:hover {
             text-decoration: underline;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media print, screen and (max-width: 992px) {
+            .wrapper {
+                width: 100%;
+                padding: 0 20px;
+            }
+
+            header, section, footer {
+                width: 100%;
+                float: none;
+                position: static;
+            }
+
+            header {
+                padding: 20px 0;
+                border-bottom: 1px solid #e1e4e8;
+            }
+
+            footer {
+                padding: 20px 0;
+                border-top: 1px solid #e1e4e8;
+                margin-top: 40px;
+            }
         }
     </style>
     <title>Keyple API Documentation</title>
@@ -115,9 +163,15 @@
         </nav>
 
         {% unless current_repo == "" %}
+        {% comment %} For UML repos, point to the corresponding Java repo {% endcomment %}
+        {% if current_repo contains "-uml-" %}
+            {% assign repo_url = current_repo | replace: "-uml-", "-java-" %}
+        {% else %}
+            {% assign repo_url = current_repo %}
+        {% endif %}
         <p class="repo-link">
             <img src="https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg" width="16" height="16" alt="GitHub">&nbsp;Source code repository:
-            <a href="https://github.com/eclipse-keyple/{{ current_repo }}">{{ current_repo }}</a>
+            <a href="https://github.com/eclipse-keyple/{{ repo_url }}">{{ repo_url }}</a>
         </p>
         {% endunless %}
 
