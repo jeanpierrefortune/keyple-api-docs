@@ -46,31 +46,36 @@ jobs:
 
           git submodule update --init --recursive --remote
 
-          # Convert submodules to regular directories
+          # Convert submodules to regular directories by copying content
           echo "Converting submodules to regular directories..."
 
-          # Save .gitmodules for later restoration
-          cp .gitmodules .gitmodules.backup
+          # Create a temporary directory for clean content
+          TEMP_DIR=$(mktemp -d)
+          echo "Temporary directory: $TEMP_DIR"
 
-          # Remove all .git directories from submodules
-          git submodule foreach '
-            echo "De-gitifying $(basename $(pwd))"
-            rm -rf .git
-          '
+          # Copy all content except .git directories and .gitmodules
+          echo "Copying content to temporary directory..."
+          rsync -av --exclude='.git' --exclude='.gitmodules' ./ "$TEMP_DIR/"
 
-          # Remove submodule configuration to allow adding as regular files
-          rm -rf .git/modules
-          rm -f .gitmodules
+          # Copy .gitmodules for next run
+          cp .gitmodules "$TEMP_DIR/.gitmodules"
 
-          # Remove submodules from git index
-          git config --file .gitmodules.backup --get-regexp path | awk '{ print $2 }' | while read -r submodule_path; do
-            echo "Removing submodule reference: $submodule_path"
-            git rm --cached "$submodule_path" 2>/dev/null || true
-          done
+          # Get current commit hash for reference
+          CURRENT_COMMIT=$(git rev-parse HEAD)
+          echo "Source commit: $CURRENT_COMMIT"
 
-          # Restore .gitmodules and add everything as regular files
-          mv .gitmodules.backup .gitmodules
-          git add .
+          # Remove all files from git index (but keep .git)
+          git rm -rf .
+          rm -rf .gitmodules .git/modules
+
+          # Copy back the clean content
+          cp -r "$TEMP_DIR"/* "$TEMP_DIR"/.* . 2>/dev/null || true
+
+          # Clean up temp directory
+          rm -rf "$TEMP_DIR"
+
+          # Add everything as regular files
+          git add -A
 
           # Clean old patch versions
           echo "Cleaning old patch versions..."
