@@ -79,7 +79,7 @@ jobs:
           for module in *; do
             if [ -d "$module" ]; then
               echo "Checking module: $module"
- 
+          
               # Check if module name contains "-java-" or "kmp"
               if [[ "$module" == *"-java-"* ]] || [[ "$module" == *"kmp"* ]]; then
                 echo "Processing module: $module"
