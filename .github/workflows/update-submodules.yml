@@ -46,45 +46,37 @@ jobs:
 
           git submodule update --init --recursive --remote
 
-          # Convert submodules to regular directories by copying content
-          echo "Converting submodules to regular directories..."
+          # Create a completely fresh git repository to avoid submodule detection
+          echo "Creating fresh repository without submodule history..."
 
-          # Create a temporary directory for clean content
-          TEMP_DIR=$(mktemp -d)
-          echo "Temporary directory: $TEMP_DIR"
+          # Save current location
+          SOURCE_DIR=$(pwd)
 
-          # Copy all content except .git directories and .gitmodules
-          echo "Copying content to temporary directory..."
-          rsync -av --exclude='.git' --exclude='.gitmodules' ./ "$TEMP_DIR/"
+          # Create a temporary directory for the new clean repository
+          CLEAN_REPO=$(mktemp -d)
+          echo "Clean repository: $CLEAN_REPO"
 
-          # Copy .gitmodules for next run
-          cp .gitmodules "$TEMP_DIR/.gitmodules"
+          # Initialize a brand new git repository
+          cd "$CLEAN_REPO"
+          git init
+          git config user.name "Eclipse Keyple Bot"
+          git config user.email "${{ github.repository }}-bot@eclipse.org"
 
-          # Get current commit hash for reference
-          CURRENT_COMMIT=$(git rev-parse HEAD)
-          echo "Source commit: $CURRENT_COMMIT"
+          # Copy all content from source (excluding .git)
+          echo "Copying content to clean repository..."
+          rsync -av --exclude='.git' "$SOURCE_DIR/" .
 
-          # Remove all files from git index (but keep .git)
-          git rm -rf .
-          rm -rf .gitmodules .git/modules
+          # Add all files as regular files (no submodule history here!)
+          git add -A
 
-          # Copy back the clean content
-          cp -r "$TEMP_DIR"/* "$TEMP_DIR"/.* . 2>/dev/null || true
+          # Create commit
+          git commit -m "Update submodules and clean old patch versions"
 
-          # Clean up temp directory
-          rm -rf "$TEMP_DIR"
+          echo "Clean repository created successfully"
+          echo "changes_detected=true" >> $GITHUB_ENV
 
-          # Double-check: remove any remaining .git directories
-          find . -name ".git" -type d -exec rm -rf {} + 2>/dev/null || true
-          find . -name ".git" -type f -delete 2>/dev/null || true
-
-          # Add all files individually to avoid git detecting submodules
-          echo "Adding files to git index..."
-          find . -type f -not -path './.git/*' -print0 | xargs -0 git add --force --
-
-          # Add empty directories if any
-          find . -type d -empty -not -path './.git/*' -exec touch {}/.gitkeep \; 2>/dev/null || true
-          find . -name ".gitkeep" -print0 | xargs -0 git add --force -- 2>/dev/null || true
+          # Now work in the clean repo for version cleanup and UML generation
+          # (Stay in CLEAN_REPO - don't go back to SOURCE_DIR)
 
           # Clean old patch versions
           echo "Cleaning old patch versions..."
@@ -155,16 +147,12 @@ jobs:
             fi
           done
 
-          # Add and commit everything
-          git add .
-          COMMIT_MSG="Update submodules and clean old patch versions"
-          if [[ -n $(git status --porcelain) ]]; then
-            git commit -m "$COMMIT_MSG"
-            echo "changes_detected=true" >> $GITHUB_ENV
-          else
-            echo "No changes to commit"
-            echo "changes_detected=false" >> $GITHUB_ENV
-          fi
+          # Amend the commit with cleaned versions
+          git add -A
+          git commit --amend --no-edit
+
+          # Store the clean repo path for later steps
+          echo "CLEAN_REPO_PATH=$CLEAN_REPO" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -172,6 +160,9 @@ jobs:
         if: env.changes_detected == 'true'
         run: |
           echo "Processing UML documentation..."
+
+          # Work in the clean repository
+          cd "${{ env.CLEAN_REPO_PATH }}"
 
           # Step 1: Delete all folders containing "-uml" in gh-pages
           echo "Deleting existing -uml folders..."
@@ -250,6 +241,15 @@ jobs:
       - name: Push changes to gh-pages
         if: env.changes_detected == 'true'
         run: |
+          # Push from the clean repository
+          cd "${{ env.CLEAN_REPO_PATH }}"
+
+          # Add remote pointing to the main repository
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+          # Push to gh-pages with force
           git push origin HEAD:gh-pages --force
+
+          echo "Successfully pushed to gh-pages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
