@@ -1,12 +1,10 @@
 name: Update Submodules and Publish
 
 on:
-  workflow_dispatch:
-  repository_dispatch:
-    types: [update-submodules]
   push:
     branches:
       - gh-pages
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}
@@ -49,6 +47,85 @@ jobs:
 
       - name: Show the version of the submodules
         run: git submodule foreach --recursive 'git rev-parse HEAD'
+
+      - name: Process UML documentation
+        if: env.changes_detected == 'true'
+        run: |
+          echo "Processing UML documentation..."
+
+          # Step 1: Delete all folders containing "-uml" in gh-pages
+          echo "Deleting existing -uml folders..."
+          for dir in *-uml*/; do
+            if [ -d "$dir" ]; then
+              echo "Deleting $dir"
+              rm -rf "$dir"
+            fi
+          done
+
+          # Step 2: Process all modules (not as git submodules)
+          echo "Processing modules..."
+          for module in *; do
+            if [ -d "$module" ]; then
+              echo "Checking module: $module"
+ 
+              # Check if module name contains "-java-" or "kmp"
+              if [[ "$module" == *"-java-"* ]] || [[ "$module" == *"kmp"* ]]; then
+                echo "Processing module: $module"
+
+                # Determine the UML folder name
+                if [[ "$module" == *"-java-"* ]]; then
+                  uml_module="${module//-java-/-uml-}"
+                else
+                  uml_module="${module//kmp/uml}"
+                fi
+
+                echo "Creating UML version: $uml_module"
+
+                # Create the UML module directory
+                mkdir -p "$uml_module"
+
+                # Copy only api_class_diagram.svg files from version folders
+                for version_dir in "$module"/*/; do
+                  if [ -d "$version_dir" ]; then
+                    version_name=$(basename "$version_dir")
+
+                    # Skip special directories
+                    if [[ "$version_name" == "_layouts" ]] || [[ "$version_name" == ".git" ]]; then
+                      continue
+                    fi
+
+                    # Check if api_class_diagram.svg exists in this version
+                    if [ -f "$version_dir/api_class_diagram.svg" ]; then
+                      echo "Copying UML diagram for version: $version_name"
+                      mkdir -p "$uml_module/$version_name"
+                      cp "$version_dir/api_class_diagram.svg" "$uml_module/$version_name/"
+                    fi
+                  fi
+                done
+
+                # Copy and modify list_versions.md
+                if [ -f "$module/list_versions.md" ]; then
+                  echo "Copying and modifying list_versions.md..."
+                  sed 's/\[API documentation\]([^)]*)<br>//g' "$module/list_versions.md" > "$uml_module/list_versions.md"
+                fi
+
+                echo "Finished processing $module -> $uml_module"
+              fi
+            fi
+          done
+
+          # Add all changes to git
+          git add .
+
+          # Commit UML changes if any
+          if [[ -n $(git status --porcelain) ]]; then
+            git commit -m "Generate UML documentation from updated modules"
+            echo "UML documentation changes committed."
+          else
+            echo "No UML documentation changes to commit."
+          fi
+
+          echo "UML documentation processing completed."
 
       - name: Push changes if any
         if: env.changes_detected == 'true'
