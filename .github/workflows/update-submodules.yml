@@ -26,6 +26,10 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Force changes_detected when manually triggered
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: echo "changes_detected=true" >> $GITHUB_ENV
+
       - name: Set Git user identity
         run: |
           git config --global user.name "Eclipse Keyple Bot"
@@ -34,6 +38,12 @@ jobs:
       - name: Update Git submodules
         id: commit
         run: |
+          # If the workflow has been started manually, skip detection.
+          if [[ "${{ env.changes_detected }}" == "true" ]]; then
+            echo "Manual trigger detected — skipping submodule change check."
+            exit 0
+          fi
+
           git submodule update --init --recursive --remote
           git add .
           COMMIT_MSG="Update submodules to latest commit"
@@ -69,7 +79,7 @@ jobs:
           for module in *; do
             if [ -d "$module" ]; then
               echo "Checking module: $module"
- 
+          
               # Check if module name contains "-java-" or "kmp"
               if [[ "$module" == *"-java-"* ]] || [[ "$module" == *"kmp"* ]]; then
                 echo "Processing module: $module"
