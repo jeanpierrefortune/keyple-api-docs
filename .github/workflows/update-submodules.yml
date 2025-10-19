@@ -34,6 +34,11 @@ jobs:
           git config --global user.name "${GIT_USER_NAME}"
           git config --global user.email "${GIT_USER_EMAIL}"
 
+      - name: Fetch scripts from main branch
+        run: |
+          git fetch origin main
+          git checkout origin/main -- .github/scripts/update_and_publish.sh
+
       - name: Make script executable
         run: chmod +x .github/scripts/update_and_publish.sh
 
