@@ -15,45 +15,44 @@ concurrency:
 permissions:
   contents: write
 
+env:
+  GIT_USER_NAME: Eclipse Keyple Bot
+  GIT_USER_EMAIL: eclipse-keyple-bot@eclipse.org
+
 jobs:
   update-submodules:
     runs-on: ubuntu-latest
-    env:
-      GIT_USER_NAME: "Eclipse Keyple Bot"
-      GIT_USER_EMAIL: "${{ github.repository }}-bot@eclipse.org"
     steps:
-      - name: Checkout repository
+      - name: Checkout the repository
         uses: actions/checkout@v4
         with:
           ref: gh-pages-source
           submodules: recursive
           fetch-depth: 0
 
-      - name: Set Git identity
+      - name: Set Git user identity
         run: |
           git config --global user.name "${GIT_USER_NAME}"
           git config --global user.email "${GIT_USER_EMAIL}"
 
       - name: Prepare clean repository
-        id: prepare
-        run: bash scripts/prepare_clean_repo.sh
+        run: bash .github/scripts/prepare_clean_repo.sh
         env:
-          GITHUB_ENV: ${{ github.env }}
+          SOURCE_DIR: ${{ github.workspace }}
+          CLEAN_REPO: ${{ github.workspace }}/tmp_clean_repo
 
       - name: Clean old patch versions
-        id: clean_versions
-        run: bash scripts/clean_versions.sh
+        run: bash .github/scripts/clean_versions.sh
         env:
-          CLEAN_REPO: ${{ env.CLEAN_REPO }}
+          CLEAN_REPO: ${{ github.workspace }}/tmp_clean_repo
 
       - name: Generate UML documentation
-        id: uml
-        run: bash scripts/generate_uml.sh
+        run: bash .github/scripts/generate_uml.sh
         env:
-          CLEAN_REPO: ${{ env.CLEAN_REPO }}
+          CLEAN_REPO: ${{ github.workspace }}/tmp_clean_repo
 
       - name: Push to gh-pages
-        run: bash scripts/push_gh_pages.sh
+        run: bash .github/scripts/push_gh_pages.sh
         env:
-          CLEAN_REPO: ${{ env.CLEAN_REPO }}
+          CLEAN_REPO: ${{ github.workspace }}/tmp_clean_repo
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
