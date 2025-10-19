@@ -5,7 +5,7 @@ echo "=== Starting Update and Publish process ==="
 
 # Update all submodules with shallow clone to save disk space
 echo "::group::Updating submodules"
-git submodule update --init --recursive --remote --depth 1
+git submodule update --init --recursive --remote --depth 10
 echo "::endgroup::"
 
 # Step 1: Clean old patch versions before preparing clean GH repository
