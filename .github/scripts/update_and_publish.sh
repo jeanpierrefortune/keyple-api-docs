@@ -11,6 +11,7 @@ echo "::endgroup::"
 
 # Step 1: Clean old patch versions before preparing clean GH repository
 echo "::group::Cleaning old patch versions"
+set -x
 cleaned_count=0
 for module in *; do
   if [[ -d "$module" ]] && [[ ! "$module" =~ ^(\.git|\.github|\.idea|_layouts)$ ]]; then
