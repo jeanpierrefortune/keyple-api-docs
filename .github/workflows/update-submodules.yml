@@ -30,8 +30,22 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Make scripts executable
-        run: chmod +x .github/scripts/*.sh
+      - name: Checkout scripts from main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          sparse-checkout: |
+            .github/scripts
+          sparse-checkout-cone-mode: false
+          path: scripts-temp
+
+      - name: Copy scripts to workspace
+        run: |
+          echo "=== Copying scripts from main branch ==="
+          mkdir -p .github/scripts
+          cp -r scripts-temp/.github/scripts/* .github/scripts/
+          chmod +x .github/scripts/*.sh
+          rm -rf scripts-temp
 
       - name: Set Git identity
         run: |
