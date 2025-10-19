@@ -24,8 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        run: |
-          echo "=== Checking out repository ==="
         uses: actions/checkout@v4
         with:
           ref: gh-pages-source
@@ -34,36 +32,27 @@ jobs:
 
       - name: Set Git identity
         run: |
-          echo "=== Setting Git identity ==="
           git config --global user.name "${GIT_USER_NAME}"
           git config --global user.email "${GIT_USER_EMAIL}"
 
       - name: Prepare clean GH Pages repository
-        run: |
-          echo "=== Preparing clean GH Pages repository ==="
-          bash .github/scripts/prepare_clean_repo.sh
+        run: bash .github/scripts/prepare_clean_repo.sh
         env:
           SOURCE_DIR: ${{ github.workspace }}
           CLEAN_GH_PAGES: ${{ github.workspace }}/tmp_clean_gh_pages
 
       - name: Clean old patch versions
-        run: |
-          echo "=== Cleaning old patch versions ==="
-          bash .github/scripts/clean_versions.sh
+        run: bash .github/scripts/clean_versions.sh
         env:
           CLEAN_GH_PAGES: ${{ github.workspace }}/tmp_clean_gh_pages
 
       - name: Generate UML documentation
-        run: |
-          echo "=== Generating UML documentation ==="
-          bash .github/scripts/generate_uml.sh
+        run: bash .github/scripts/generate_uml.sh
         env:
           CLEAN_GH_PAGES: ${{ github.workspace }}/tmp_clean_gh_pages
 
       - name: Push to GH Pages
-        run: |
-          echo "=== Pushing to GH Pages branch ==="
-          bash .github/scripts/push_gh_pages.sh
+        run: bash .github/scripts/push_gh_pages.sh
         env:
           CLEAN_GH_PAGES: ${{ github.workspace }}/tmp_clean_gh_pages
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
