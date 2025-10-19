@@ -45,6 +45,6 @@ jobs:
       - name: Execute update and publish script
         run: .github/scripts/update_and_publish.sh
         env:
-          GIT_USER_NAME: ${{ github.env.GIT_USER_NAME }}
-          GIT_USER_EMAIL: ${{ github.env.GIT_USER_EMAIL }}
+          GIT_USER_NAME: ${{ env.GIT_USER_NAME }}
+          GIT_USER_EMAIL: ${{ env.GIT_USER_EMAIL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
