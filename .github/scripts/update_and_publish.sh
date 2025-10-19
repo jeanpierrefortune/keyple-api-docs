@@ -3,14 +3,16 @@ set -euo pipefail
 
 echo "=== Starting Update and Publish process ==="
 
-# Update all submodules
-git submodule update --init --recursive --remote
+# Update all submodules with shallow clone to save disk space
+echo "::group::Updating submodules"
+git submodule update --init --recursive --remote --depth 1
+echo "::endgroup::"
 
 # Step 1: Clean old patch versions before preparing clean GH repository
-echo "=== Cleaning old patch versions ==="
+echo "::group::Cleaning old patch versions"
+cleaned_count=0
 for module in *; do
   if [[ -d "$module" ]] && [[ ! "$module" =~ ^(\.git|\.github|\.idea|_layouts)$ ]]; then
-    echo "Processing module: $module"
     declare -A version_groups
 
     # Detect versions
@@ -40,7 +42,6 @@ for module in *; do
       if [[ -d "$version_dir" ]]; then
         version_name=$(basename "$version_dir")
         if [[ "$version_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ -z "${keep_versions[$version_name]:-}" ]]; then
-          echo "Deleting $module/$version_name"
           rm -rf "$version_dir"
           deleted_versions+=("$version_name")
         fi
@@ -63,7 +64,7 @@ for module in *; do
         $keep_line && echo "$line" >> "$temp_file"
       done < "$module/list_versions.md"
       mv "$temp_file" "$module/list_versions.md"
-      echo "Updated $module/list_versions.md (removed ${#deleted_versions[@]:-0} version entries)"
+      ((cleaned_count++))
     fi
 
     unset version_groups
@@ -71,21 +72,31 @@ for module in *; do
     unset deleted_versions
   fi
 done
+echo "Cleaned $cleaned_count module(s)"
+echo "::endgroup::"
 
-# Step 2: Prepare clean GH Pages repository
-echo "=== Preparing clean GH Pages repository ==="
+# Step 2: Prepare clean GH Pages repository using git worktree (saves ~50% disk space)
+echo "::group::Preparing clean GH Pages repository"
 SOURCE_DIR=$(pwd)
 CLEAN_GH_REPO=$(mktemp -d)
+
+# Use git worktree for efficient file handling
+git worktree add --detach "$CLEAN_GH_REPO"
 cd "$CLEAN_GH_REPO"
+
+# Remove git metadata to create a clean orphan repo
+rm -rf .git .gitmodules
+
+# Initialize fresh repo for gh-pages
 git init
 git config user.name "${GIT_USER_NAME}"
 git config user.email "${GIT_USER_EMAIL}"
-rsync -av --exclude='.git' --exclude='.gitmodules' "$SOURCE_DIR/" .
 git add -A
 git commit -m "Update submodules and prepare clean GH Pages repo"
+echo "::endgroup::"
 
 # Step 3: Generate UML modules
-echo "=== Generating UML documentation ==="
+echo "::group::Generating UML documentation"
 for module in *; do
   if [[ -d "$module" ]]; then
     if [[ "$module" == *"-java-"* ]] || [[ "$module" == *"kmp"* ]]; then
@@ -117,8 +128,15 @@ git add -A
 if [[ -n $(git status --porcelain) ]]; then
   git commit -m "Generate UML documentation from updated modules"
 fi
+echo "::endgroup::"
 
+echo "::group::Pushing to gh-pages"
 git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
 git push origin HEAD:gh-pages --force
+echo "::endgroup::"
+
+# Cleanup: return to source and remove worktree
+cd "$SOURCE_DIR"
+git worktree remove --force "$CLEAN_GH_REPO" 2>/dev/null || rm -rf "$CLEAN_GH_REPO"
 
 echo "=== Update and Publish process completed successfully ==="
