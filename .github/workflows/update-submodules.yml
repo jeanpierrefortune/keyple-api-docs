@@ -30,6 +30,9 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Make scripts executable
+        run: chmod +x .github/scripts/*.sh
+
       - name: Set Git identity
         run: |
           git config --global user.name "${GIT_USER_NAME}"
