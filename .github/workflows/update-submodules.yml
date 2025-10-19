@@ -15,61 +15,31 @@ concurrency:
 permissions:
   contents: write
 
-env:
-  GIT_USER_NAME: Eclipse Keyple Bot
-  GIT_USER_EMAIL: eclipse-keyple-bot@eclipse.org
-
 jobs:
   update-submodules:
     runs-on: ubuntu-latest
+    env:
+      GIT_USER_NAME: Eclipse Keyple Bot
+      GIT_USER_EMAIL: ${{ github.repository }}-bot@eclipse.org
     steps:
-      - name: Checkout repository
+      - name: Checkout the repository
         uses: actions/checkout@v4
         with:
           ref: gh-pages-source
           submodules: recursive
           fetch-depth: 0
 
-      - name: Checkout scripts from main branch
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          sparse-checkout: |
-            .github/scripts
-          sparse-checkout-cone-mode: false
-          path: scripts-temp
-
-      - name: Copy scripts to workspace
-        run: |
-          echo "=== Copying scripts from main branch ==="
-          mkdir -p .github/scripts
-          cp -r scripts-temp/.github/scripts/* .github/scripts/
-          chmod +x .github/scripts/*.sh
-          rm -rf scripts-temp
-
-      - name: Set Git identity
+      - name: Set Git user identity
         run: |
           git config --global user.name "${GIT_USER_NAME}"
           git config --global user.email "${GIT_USER_EMAIL}"
 
-      - name: Prepare clean GH Pages repository
-        run: bash .github/scripts/prepare_clean_repo.sh
-        env:
-          SOURCE_DIR: ${{ github.workspace }}
-          CLEAN_GH_PAGES: ${{ github.workspace }}/tmp_clean_gh_pages
+      - name: Make script executable
+        run: chmod +x .github/scripts/update_and_publish.sh
 
-      - name: Clean old patch versions
-        run: bash .github/scripts/clean_versions.sh
+      - name: Execute update and publish script
+        run: .github/scripts/update_and_publish.sh
         env:
-          CLEAN_GH_PAGES: ${{ github.workspace }}/tmp_clean_gh_pages
-
-      - name: Generate UML documentation
-        run: bash .github/scripts/generate_uml.sh
-        env:
-          CLEAN_GH_PAGES: ${{ github.workspace }}/tmp_clean_gh_pages
-
-      - name: Push to GH Pages
-        run: bash .github/scripts/push_gh_pages.sh
-        env:
-          CLEAN_GH_PAGES: ${{ github.workspace }}/tmp_clean_gh_pages
+          GIT_USER_NAME: ${{ github.env.GIT_USER_NAME }}
+          GIT_USER_EMAIL: ${{ github.env.GIT_USER_EMAIL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
