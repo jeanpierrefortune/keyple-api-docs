@@ -3,9 +3,9 @@ set -euo pipefail
 
 echo "=== Starting Update and Publish process ==="
 
-# Update all submodules with shallow clone to save disk space
+# Update all submodules to their latest versions
 echo "::group::Updating submodules"
-git submodule update --init --recursive --remote --depth 10
+git submodule update --init --recursive --remote
 echo "::endgroup::"
 
 # Step 1: Clean old patch versions before preparing clean GH repository
