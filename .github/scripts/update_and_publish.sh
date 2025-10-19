@@ -48,7 +48,7 @@ for module in *; do
     done
 
     # Update list_versions.md
-    if [[ -f "$module/list_versions.md" ]] && [[ ${#deleted_versions[@]} -gt 0 ]]; then
+    if [[ -f "$module/list_versions.md" ]] && [[ ${#deleted_versions[@]:-0} -gt 0 ]]; then
       temp_file=$(mktemp)
       while IFS= read -r line; do
         keep_line=true
@@ -63,7 +63,7 @@ for module in *; do
         $keep_line && echo "$line" >> "$temp_file"
       done < "$module/list_versions.md"
       mv "$temp_file" "$module/list_versions.md"
-      echo "Updated $module/list_versions.md (removed ${#deleted_versions[@]} version entries)"
+      echo "Updated $module/list_versions.md (removed ${#deleted_versions[@]:-0} version entries)"
     fi
 
     unset version_groups
