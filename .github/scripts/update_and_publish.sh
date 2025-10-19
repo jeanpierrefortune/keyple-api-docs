@@ -37,7 +37,7 @@ for module in *; do
     done
 
     # Delete versions not kept
-    declare -a deleted_versions
+    declare -a deleted_versions=()
     for version_dir in "$module"/*/; do
       if [[ -d "$version_dir" ]]; then
         version_name=$(basename "$version_dir")
@@ -49,7 +49,7 @@ for module in *; do
     done
 
     # Update list_versions.md
-    if [[ -f "$module/list_versions.md" ]] && [[ ${#deleted_versions[@]:-0} -gt 0 ]]; then
+    if [[ -f "$module/list_versions.md" ]] && [[ ${#deleted_versions[@]} -gt 0 ]]; then
       temp_file=$(mktemp)
       while IFS= read -r line; do
         keep_line=true
