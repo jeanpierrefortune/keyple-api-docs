@@ -11,7 +11,6 @@ echo "::endgroup::"
 
 # Step 1: Clean old patch versions before preparing clean GH repository
 echo "::group::Cleaning old patch versions"
-set -x
 cleaned_count=0
 for module in *; do
   if [[ -d "$module" ]] && [[ ! "$module" =~ ^(\.git|\.github|\.idea|_layouts)$ ]]; then
@@ -68,7 +67,7 @@ for module in *; do
         $keep_line && echo "$line" >> "$temp_file"
       done < "$module/list_versions.md"
       mv "$temp_file" "$module/list_versions.md"
-      ((cleaned_count++))
+      cleaned_count=$((cleaned_count + 1))
     fi
 
     unset version_groups
