@@ -13,7 +13,7 @@ echo "::group::Cleaning old patch versions"
 cleaned_count=0
 for module in *; do
   if [[ -d "$module" ]] && [[ ! "$module" =~ ^(\.git|\.github|\.idea|_layouts)$ ]]; then
-    declare -A version_groups
+    declare -A version_groups=()
 
     # Detect versions
     for version_dir in "$module"/*/; do
@@ -31,10 +31,12 @@ for module in *; do
       fi
     done
 
-    declare -A keep_versions
-    for group in "${!version_groups[@]}"; do
-      keep_versions[${version_groups[$group]#*:}]=1
-    done
+    declare -A keep_versions=()
+    if [[ ${#version_groups[@]} -gt 0 ]]; then
+      for group in "${!version_groups[@]}"; do
+        keep_versions[${version_groups[$group]#*:}]=1
+      done
+    fi
 
     # Delete versions not kept
     declare -a deleted_versions=()
