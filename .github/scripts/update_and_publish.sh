@@ -78,22 +78,20 @@ done
 echo "Cleaned $cleaned_count module(s)"
 echo "::endgroup::"
 
-# Step 2: Prepare clean GH Pages repository using git worktree (saves ~50% disk space)
+# Step 2: Prepare clean GH Pages repository
 echo "::group::Preparing clean GH Pages repository"
 SOURCE_DIR=$(pwd)
 CLEAN_GH_REPO=$(mktemp -d)
-
-# Use git worktree for efficient file handling
-git worktree add --detach "$CLEAN_GH_REPO"
 cd "$CLEAN_GH_REPO"
-
-# Remove git metadata to create a clean orphan repo
-rm -rf .git .gitmodules
 
 # Initialize fresh repo for gh-pages
 git init
 git config user.name "${GIT_USER_NAME}"
 git config user.email "${GIT_USER_EMAIL}"
+
+# Copy files excluding git metadata
+rsync -a --exclude='.git' --exclude='.gitmodules' "$SOURCE_DIR/" .
+
 git add -A
 git commit -m "Update submodules and prepare clean GH Pages repo"
 echo "::endgroup::"
@@ -138,8 +136,8 @@ git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB
 git push origin HEAD:gh-pages --force
 echo "::endgroup::"
 
-# Cleanup: return to source and remove worktree
+# Cleanup
 cd "$SOURCE_DIR"
-git worktree remove --force "$CLEAN_GH_REPO" 2>/dev/null || rm -rf "$CLEAN_GH_REPO"
+rm -rf "$CLEAN_GH_REPO"
 
 echo "=== Update and Publish process completed successfully ==="
