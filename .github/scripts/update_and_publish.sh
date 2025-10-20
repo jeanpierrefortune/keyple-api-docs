@@ -128,8 +128,8 @@ git add -A
 git commit -m "Update submodules and prepare clean GH Pages repo"
 echo "::endgroup::"
 
-# Step 3: Generate UML modules
-echo "::group::Generating UML documentation"
+# Step 3: Extract and organize UML documentation into dedicated modules
+echo "::group::Extracting UML documentation"
 for module in *; do
   if [[ -d "$module" ]]; then
     if [[ "$module" == *"-java-"* ]] || [[ "$module" == *"kmp"* ]]; then
@@ -159,7 +159,7 @@ done
 # Commit and push
 git add -A
 if [[ -n $(git status --porcelain) ]]; then
-  git commit -m "Generate UML documentation from updated modules"
+  git commit -m "Extract UML documentation from updated modules"
 fi
 echo "::endgroup::"
 

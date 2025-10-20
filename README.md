@@ -28,7 +28,7 @@ This repository aggregates documentation from multiple Keyple libraries using **
 1. **Submodules**: Each Keyple library is included as a Git submodule (30+ libraries)
 2. **Workflow**: GitHub Actions automatically updates and publishes documentation
 3. **Version Management**: Old patch versions are automatically cleaned (keeps only latest per minor version)
-4. **UML Generation**: Automatically generates UML documentation from Java/KMP libraries
+4. **UML Documentation**: Automatically extracts and organizes UML diagrams from Java/KMP libraries into dedicated modules
 
 ---
 
@@ -54,7 +54,7 @@ This repository aggregates documentation from multiple Keyple libraries using **
 - **Purpose**: Published documentation (auto-generated, **do not edit manually**)
 - **Contains**:
   - All extracted documentation from submodules
-  - Generated UML documentation
+  - UML documentation modules
   - Jekyll site ready for GitHub Pages
 - **Who modifies**: Automated workflow only
 
@@ -75,7 +75,7 @@ graph LR
     A[Checkout gh-pages-source] --> B[Update Submodules]
     B --> C[Clean Old Versions]
     C --> D[Copy to Clean Repo]
-    D --> E[Generate UML Docs]
+    D --> E[Extract UML Docs]
     E --> F[Push to gh-pages]
 ```
 
@@ -93,10 +93,11 @@ Copies documentation files excluding Git metadata:
 rsync -a --exclude='.git' --exclude='.gitmodules'
 ```
 
-#### 4. **Generate UML Documentation**
-Creates `-uml-` variants for Java/KMP libraries:
+#### 4. **Extract UML Documentation**
+Creates `-uml-` modules for Java/KMP libraries by extracting existing UML diagrams:
 - `keyple-card-calypso-java-lib` → `keyple-card-calypso-uml-lib`
-- Extracts class diagrams (`api_class_diagram.svg`)
+- Copies class diagrams (`api_class_diagram.svg`) from source modules
+- Generates index pages with links to diagrams
 
 #### 5. **Force Push to gh-pages**
 Publishes consolidated documentation to GitHub Pages.
@@ -109,7 +110,7 @@ Logs are organized in collapsible groups:
 - Updating submodules
 - Cleaning old patch versions
 - Preparing clean GH Pages repository
-- Generating UML documentation
+- Extracting UML documentation
 - Pushing to gh-pages
 
 ---
