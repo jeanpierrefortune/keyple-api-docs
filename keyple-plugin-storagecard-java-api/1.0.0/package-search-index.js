@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"org.eclipse.keyple.core.plugin.storagecard"},{"l":"org.eclipse.keyple.core.plugin.storagecard.internal"},{"l":"org.eclipse.keyple.core.plugin.storagecard.internal.spi"}];updateSearchResults();

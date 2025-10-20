@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['parsescheduledcardselectionsresponse_0',['parseScheduledCardSelectionsResponse',['../classkeyple_1_1core_1_1service_1_1_card_selection_manager_adapter.html#aec6ba2f6d87988d40eaf5c8e4c10dec2',1,'keyple::core::service::CardSelectionManagerAdapter']]],
+  ['plugin_1',['Plugin',['../classkeyple_1_1core_1_1service_1_1_plugin.html',1,'keyple::core::service']]],
+  ['plugin_2eh_2',['Plugin.h',['../_plugin_8h.html',1,'']]],
+  ['pluginevent_3',['PluginEvent',['../classkeyple_1_1core_1_1service_1_1_plugin_event.html',1,'keyple::core::service']]],
+  ['pluginevent_2eh_4',['PluginEvent.h',['../_plugin_event_8h.html',1,'']]],
+  ['plugineventadapter_5',['PluginEventAdapter',['../classkeyple_1_1core_1_1service_1_1_plugin_event_adapter.html',1,'keyple::core::service::PluginEventAdapter'],['../classkeyple_1_1core_1_1service_1_1_plugin_event_adapter.html#a43703b38db41eb62f652497697ab6aa0',1,'keyple::core::service::PluginEventAdapter::PluginEventAdapter(const std::string &amp;pluginName, const std::vector&lt; std::string &gt; &amp;readerNames, const PluginEvent::Type type)'],['../classkeyple_1_1core_1_1service_1_1_plugin_event_adapter.html#a712b061a961306b90b8a3c19d484660b',1,'keyple::core::service::PluginEventAdapter::PluginEventAdapter(const std::string &amp;pluginName, const std::string &amp;readerName, const PluginEvent::Type type)']]],
+  ['plugineventadapter_2ecpp_6',['PluginEventAdapter.cpp',['../_plugin_event_adapter_8cpp.html',1,'']]],
+  ['plugineventadapter_2eh_7',['PluginEventAdapter.h',['../_plugin_event_adapter_8h.html',1,'']]],
+  ['pluginobservationexceptionhandlerspi_8',['PluginObservationExceptionHandlerSpi',['../classkeyple_1_1core_1_1service_1_1spi_1_1_plugin_observation_exception_handler_spi.html',1,'keyple::core::service::spi']]],
+  ['pluginobservationexceptionhandlerspi_2eh_9',['PluginObservationExceptionHandlerSpi.h',['../_plugin_observation_exception_handler_spi_8h.html',1,'']]],
+  ['pluginobserverspi_10',['PluginObserverSpi',['../classkeyple_1_1core_1_1service_1_1spi_1_1_plugin_observer_spi.html',1,'keyple::core::service::spi']]],
+  ['pluginobserverspi_2eh_11',['PluginObserverSpi.h',['../_plugin_observer_spi_8h.html',1,'']]],
+  ['poolplugin_12',['PoolPlugin',['../classkeyple_1_1core_1_1service_1_1_pool_plugin.html',1,'keyple::core::service']]],
+  ['poolplugin_2eh_13',['PoolPlugin.h',['../_pool_plugin_8h.html',1,'']]],
+  ['preparereleasechannel_14',['prepareReleaseChannel',['../classkeyple_1_1core_1_1service_1_1_card_selection_manager_adapter.html#ae4cf0adae09923570d2c66ff0a89b8ff',1,'keyple::core::service::CardSelectionManagerAdapter']]],
+  ['prepareselection_15',['prepareSelection',['../classkeyple_1_1core_1_1service_1_1_card_selection_manager_adapter.html#af3238e5d84dd03e20abc014d32a9d4e9',1,'keyple::core::service::CardSelectionManagerAdapter']]],
+  ['process_5fall_16',['PROCESS_ALL',['../namespacekeyple_1_1core_1_1service.html#ac32600c41192b341faf4e5fe86d0aa1ca61bd04d2c3062601f4c0ee93ddc1a6ec',1,'keyple::core::service']]],
+  ['processcardinserted_17',['processCardInserted',['../classkeyple_1_1core_1_1service_1_1_observable_local_reader_adapter.html#a2fb4171b782e7878432f5e911d83a952',1,'keyple::core::service::ObservableLocalReaderAdapter']]],
+  ['processcardremoved_18',['processCardRemoved',['../classkeyple_1_1core_1_1service_1_1_observable_local_reader_adapter.html#aebc11973b535dc7b48cf48e2fc02edf5',1,'keyple::core::service::ObservableLocalReaderAdapter']]],
+  ['processcardrequest_19',['processCardRequest',['../classkeyple_1_1core_1_1service_1_1_abstract_reader_adapter.html#a0439e2fd25c1c73dfd1653d79ac9eb24',1,'keyple::core::service::AbstractReaderAdapter::processCardRequest()'],['../classkeyple_1_1core_1_1service_1_1_local_reader_adapter.html#ac3bd1dcfc7276b4fc04c01805694dc74',1,'keyple::core::service::LocalReaderAdapter::processCardRequest()']]],
+  ['processcardselectionrequests_20',['processCardSelectionRequests',['../classkeyple_1_1core_1_1service_1_1_abstract_reader_adapter.html#a867f5f547d93f8e9cd8c120f82c4c5c6',1,'keyple::core::service::AbstractReaderAdapter::processCardSelectionRequests()'],['../classkeyple_1_1core_1_1service_1_1_local_reader_adapter.html#afdefc69dd878c1b527e1d6a20ad73d13',1,'keyple::core::service::LocalReaderAdapter::processCardSelectionRequests()']]],
+  ['processcardselectionscenario_21',['processCardSelectionScenario',['../classkeyple_1_1core_1_1service_1_1_card_selection_manager_adapter.html#a6dd848fed0fad1910fbcb18f1a7862d0',1,'keyple::core::service::CardSelectionManagerAdapter']]]
+];
