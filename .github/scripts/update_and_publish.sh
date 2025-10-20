@@ -12,21 +12,52 @@ echo "::endgroup::"
 # Step 1: Clean old patch versions before preparing clean GH repository
 echo "::group::Cleaning old patch versions"
 cleaned_count=0
+
+# Function to compare versions (supports x.y.z and x.y.z.t)
+# Returns 0 if v1 >= v2, 1 otherwise
+version_gte() {
+  local v1=$1 v2=$2
+  IFS='.' read -ra v1_parts <<< "$v1"
+  IFS='.' read -ra v2_parts <<< "$v2"
+
+  # Pad arrays to same length with zeros
+  local max_len=${#v1_parts[@]}
+  [[ ${#v2_parts[@]} -gt $max_len ]] && max_len=${#v2_parts[@]}
+
+  for ((i=0; i<max_len; i++)); do
+    local n1=${v1_parts[i]:-0}
+    local n2=${v2_parts[i]:-0}
+    if (( n1 > n2 )); then
+      return 0
+    elif (( n1 < n2 )); then
+      return 1
+    fi
+  done
+  return 0  # Equal
+}
+
 for module in *; do
   if [[ -d "$module" ]] && [[ ! "$module" =~ ^(\.git|\.github|\.idea|_layouts)$ ]]; then
     declare -A version_groups=()
 
-    # Detect versions
+    # Detect versions (3 or 4 parts)
     for version_dir in "$module"/*/; do
       if [[ -d "$version_dir" ]]; then
         version_name=$(basename "$version_dir")
-        if [[ "$version_name" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+        # Match x.y.z or x.y.z.t
+        if [[ "$version_name" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(\.([0-9]+))?$ ]]; then
           major="${BASH_REMATCH[1]}"
           minor="${BASH_REMATCH[2]}"
-          patch="${BASH_REMATCH[3]}"
           group_key="${major}.${minor}"
-          if [[ -z "${version_groups[$group_key]:-}" ]] || (( patch > ${version_groups[$group_key]%%:*} )); then
-            version_groups[$group_key]="$patch:$version_name"
+
+          # Keep highest version in this major.minor group
+          if [[ -z "${version_groups[$group_key]:-}" ]]; then
+            version_groups[$group_key]="$version_name"
+          else
+            current_version="${version_groups[$group_key]}"
+            if version_gte "$version_name" "$current_version"; then
+              version_groups[$group_key]="$version_name"
+            fi
           fi
         fi
       fi
@@ -35,7 +66,7 @@ for module in *; do
     declare -A keep_versions=()
     if [[ ${#version_groups[@]} -gt 0 ]]; then
       for group in "${!version_groups[@]}"; do
-        keep_versions[${version_groups[$group]#*:}]=1
+        keep_versions[${version_groups[$group]}]=1
       done
     fi
 
@@ -44,7 +75,8 @@ for module in *; do
     for version_dir in "$module"/*/; do
       if [[ -d "$version_dir" ]]; then
         version_name=$(basename "$version_dir")
-        if [[ "$version_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ -z "${keep_versions[$version_name]:-}" ]]; then
+        # Match x.y.z or x.y.z.t
+        if [[ "$version_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] && [[ -z "${keep_versions[$version_name]:-}" ]]; then
           rm -rf "$version_dir"
           deleted_versions+=("$version_name")
         fi
